@@ -23,9 +23,10 @@ import { cn } from './utils/cn';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'students' | 'scan' | 'history'>('dashboard');
-  const [students, setStudents] = useLocalStorage<Student[]>('maker-students', []);
-  const [attendance, setAttendance] = useLocalStorage<AttendanceRecord[]>('maker-attendance', []);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [isAddingStudent, setIsAddingStudent] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', studentId: '', group: '' });
@@ -33,6 +34,32 @@ export default function App() {
 
   // Cooldown for scanning to prevent loops
   const lastScanRef = useRef<{ code: string; time: number }>({ code: '', time: 0 });
+
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [studentsRes, attendanceRes] = await Promise.all([
+          fetch('/api/students'),
+          fetch('/api/attendance')
+        ]);
+        
+        if (studentsRes.ok && attendanceRes.ok) {
+          const studentsData = await studentsRes.json();
+          const attendanceData = await attendanceRes.json();
+          // Map group_name back to group for the UI
+          setStudents(studentsData.map((s: any) => ({ ...s, group: s.group_name })));
+          setAttendance(attendanceData);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        addNotification('Error al conectar con el servidor', 'warning');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   // Stats
   const stats = useMemo(() => {
@@ -62,7 +89,7 @@ export default function App() {
     }, 5000);
   };
 
-  const handleAddStudent = (e: React.FormEvent) => {
+  const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newStudent.name || !newStudent.studentId) return;
 
@@ -77,13 +104,27 @@ export default function App() {
       createdAt: Date.now()
     };
 
-    setStudents([...students, student]);
-    setNewStudent({ name: '', studentId: '', group: '' });
-    setIsAddingStudent(false);
-    addNotification(`Alumno ${student.name} registrado con éxito`, 'success');
+    try {
+      const res = await fetch('/api/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(student)
+      });
+
+      if (res.ok) {
+        setStudents([...students, student]);
+        setNewStudent({ name: '', studentId: '', group: '' });
+        setIsAddingStudent(false);
+        addNotification(`Alumno ${student.name} registrado con éxito`, 'success');
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch (error) {
+      addNotification('Error al guardar el alumno', 'warning');
+    }
   };
 
-  const handleScan = useCallback((decodedText: string) => {
+  const handleScan = useCallback(async (decodedText: string) => {
     const now = Date.now();
     // Ignore if same code scanned within 5 seconds
     if (decodedText === lastScanRef.current.code && now - lastScanRef.current.time < 5000) {
@@ -93,16 +134,13 @@ export default function App() {
     const student = students.find(s => s.studentId === decodedText);
     
     if (!student) {
-      // Even for errors, we set a small cooldown so it doesn't spam warnings
       lastScanRef.current = { code: decodedText, time: now };
       addNotification('Código QR no reconocido', 'warning');
       return;
     }
 
-    // Update last scan ref
     lastScanRef.current = { code: decodedText, time: now };
 
-    // Check if it's entry or exit
     const lastRecord = [...attendance].reverse().find(a => a.studentId === decodedText);
     const type: 'entry' | 'exit' = lastRecord?.type === 'entry' ? 'exit' : 'entry';
 
@@ -113,15 +151,25 @@ export default function App() {
       type
     };
 
-    setAttendance(prev => [...prev, record]);
-    addNotification(
-      `${type === 'entry' ? 'Entrada' : 'Salida'} registrada: ${student.name}`, 
-      'success'
-    );
-    
-    // Switch to dashboard after a delay
-    setTimeout(() => setActiveTab('dashboard'), 2000);
-  }, [students, attendance, setAttendance]);
+    try {
+      const res = await fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      });
+
+      if (res.ok) {
+        setAttendance(prev => [...prev, record]);
+        addNotification(
+          `${type === 'entry' ? 'Entrada' : 'Salida'} registrada: ${student.name}`, 
+          'success'
+        );
+        setTimeout(() => setActiveTab('dashboard'), 2000);
+      }
+    } catch (error) {
+      addNotification('Error al registrar asistencia', 'warning');
+    }
+  }, [students, attendance]);
 
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -315,10 +363,15 @@ export default function App() {
                       <StudentQR studentId={student.studentId} studentName={student.name} />
                     </div>
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         if(confirm('¿Eliminar alumno?')) {
-                          setStudents(students.filter(s => s.id !== student.id));
-                          addNotification('Alumno eliminado', 'info');
+                          try {
+                            await fetch(`/api/students?id=${student.id}`, { method: 'DELETE' });
+                            setStudents(students.filter(s => s.id !== student.id));
+                            addNotification('Alumno eliminado', 'info');
+                          } catch (error) {
+                            addNotification('Error al eliminar', 'warning');
+                          }
                         }
                       }}
                       className="w-full py-2 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors"

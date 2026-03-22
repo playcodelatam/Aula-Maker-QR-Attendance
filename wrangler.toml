@@ -1,0 +1,7 @@
+name = "aula-maker-qr"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "aula_maker_db"
+database_id = "tu-id-de-base-de-datos-aqui" # Se obtiene al crear la DB con wrangler
