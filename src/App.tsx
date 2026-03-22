@@ -28,7 +28,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   
   const [isAddingStudent, setIsAddingStudent] = useState(false);
-  const [newStudent, setNewStudent] = useState({ name: '', studentId: '', group: '' });
+  const [newStudent, setNewStudent] = useState({ name: '', studentId: '', email: '', group: '' });
   const [searchTerm, setSearchTerm] = useState('');
 
   // Cooldown for scanning to prevent loops
@@ -112,7 +112,7 @@ export default function App() {
 
       if (res.ok) {
         setStudents([...students, student]);
-        setNewStudent({ name: '', studentId: '', group: '' });
+        setNewStudent({ name: '', studentId: '', email: '', group: '' });
         setIsAddingStudent(false);
         addNotification(`Alumno ${student.name} registrado con éxito`, 'success');
       } else {
@@ -539,6 +539,16 @@ export default function App() {
                     placeholder="ID único para el QR"
                     value={newStudent.studentId}
                     onChange={(e) => setNewStudent({...newStudent, studentId: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
+                  <input 
+                    type="email" 
+                    className="w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="Ej. alumno@correo.com"
+                    value={newStudent.email}
+                    onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
                   />
                 </div>
                 <div>

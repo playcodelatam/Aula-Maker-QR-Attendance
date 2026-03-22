@@ -16,9 +16,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   
   try {
     await DB.prepare(
-      "INSERT INTO students (id, name, studentId, group_name, createdAt) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO students (id, name, email, studentId, group_name, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
     )
-    .bind(student.id, student.name, student.studentId, student.group || null, student.createdAt)
+    .bind(student.id, student.name, student.email || null, student.studentId, student.group || null, student.createdAt)
     .run();
     
     return new Response(JSON.stringify({ success: true }), { status: 201 });
