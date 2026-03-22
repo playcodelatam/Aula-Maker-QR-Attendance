@@ -1,0 +1,7 @@
+{
+  "name": "Aula Maker QR Attendance",
+  "description": "Sistema de control de asistencia mediante códigos QR para el Aula Maker con registro de alumnos y almacenamiento local.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
