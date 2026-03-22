@@ -32,8 +32,24 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
   const url = new URL(context.request.url);
   const id = url.searchParams.get("id");
   
-  if (!id) return new Response("Missing ID", { status: 400 });
+  if (!id) return new Response(JSON.stringify({ error: "Missing ID" }), { status: 400 });
   
-  await DB.prepare("DELETE FROM students WHERE id = ?").bind(id).run();
-  return new Response(null, { status: 204 });
+  try {
+    // 1. Obtener el studentId (el del QR) antes de borrar al alumno
+    const student = await DB.prepare("SELECT studentId FROM students WHERE id = ?").bind(id).first() as { studentId: string } | null;
+    
+    if (!student) {
+      return new Response(JSON.stringify({ error: "Alumno no encontrado" }), { status: 404 });
+    }
+
+    // 2. Borrar tanto la asistencia como el alumno en una sola operación (batch)
+    await DB.batch([
+      DB.prepare("DELETE FROM attendance WHERE studentId = ?").bind(student.studentId),
+      DB.prepare("DELETE FROM students WHERE id = ?").bind(id)
+    ]);
+    
+    return new Response(null, { status: 204 });
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+  }
 };

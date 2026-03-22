@@ -44,8 +44,8 @@ export default function App() {
         ]);
         
         if (studentsRes.ok && attendanceRes.ok) {
-          const studentsData = await studentsRes.json();
-          const attendanceData = await attendanceRes.json();
+          const studentsData = await studentsRes.json() as any[];
+          const attendanceData = await attendanceRes.json() as any[];
           // Map group_name back to group for the UI
           setStudents(studentsData.map((s: any) => ({ ...s, group: s.group_name })));
           setAttendance(attendanceData);
@@ -365,11 +365,16 @@ export default function App() {
                       onClick={async () => {
                         if(confirm('¿Eliminar alumno?')) {
                           try {
-                            await fetch(`/api/students?id=${student.id}`, { method: 'DELETE' });
-                            setStudents(students.filter(s => s.id !== student.id));
-                            addNotification('Alumno eliminado', 'info');
-                          } catch (error) {
-                            addNotification('Error al eliminar', 'warning');
+                            const res = await fetch(`/api/students?id=${student.id}`, { method: 'DELETE' });
+                            if (res.ok) {
+                              setStudents(students.filter(s => s.id !== student.id));
+                              addNotification('Alumno eliminado', 'info');
+                            } else {
+                              const data = await res.json() as any;
+                              throw new Error(data.error || 'Error al eliminar');
+                            }
+                          } catch (error: any) {
+                            addNotification(error.message || 'Error al eliminar', 'warning');
                           }
                         }
                       }}
