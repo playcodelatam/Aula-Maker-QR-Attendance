@@ -4,4 +4,4 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "aula_maker_db"
-database_id = "tu-id-de-base-de-datos-aqui" # Se obtiene al crear la DB con wrangler
+database_id = "REEMPLAZAR-CON-TU-ID-DE-D1" # Ejecuta 'npx wrangler d1 create aula_maker_db' para obtenerlo
