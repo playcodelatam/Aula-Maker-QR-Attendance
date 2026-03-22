@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { 
   Users, 
   Scan, 
@@ -15,7 +15,6 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useLocalStorage } from './hooks/useLocalStorage';
 import { Student, AttendanceRecord, Notification } from './types';
 import { QRScanner } from './components/QRScanner';
 import { StudentQR } from './components/StudentQR';
