@@ -183,7 +183,7 @@ export default function App() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
             <Users size={24} />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">Aula Maker</h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 leading-tight">Play Code<br/><span className="text-sm font-medium text-slate-500">Control de Asistencias</span></h1>
         </div>
 
         <nav className="space-y-2">

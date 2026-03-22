@@ -1,6 +1,6 @@
 {
-  "name": "Aula Maker QR Attendance",
-  "description": "Sistema de control de asistencia mediante códigos QR para el Aula Maker con registro de alumnos y almacenamiento local.",
+  "name": "Play Code Control de Asistencias",
+  "description": "Sistema de control de asistencia mediante códigos QR para Play Code con registro de alumnos y base de datos en la nube.",
   "requestFramePermissions": [
     "camera"
   ]
