@@ -32,7 +32,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (student && student.email && RESEND_API_KEY) {
       const typeLabel = record.type === 'entry' ? 'Ingreso' : 'Salida';
       const dateStr = new Date(record.timestamp).toLocaleString('es-ES', { 
-        timeZone: 'UTC',
         dateStyle: 'long',
         timeStyle: 'short'
       });
@@ -44,19 +43,28 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'Play Code <onboarding@resend.dev>',
+          from: 'Secretaría Play Code <secretaria@playcode.com.ar>',
           to: student.email,
-          subject: `Registro de ${typeLabel} - ${student.name}`,
+          subject: `🔔 ${typeLabel} Registrado: ${student.name}`,
           html: `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 16px;">
-              <h2 style="color: #4f46e5;">Notificación de Asistencia</h2>
-              <p>Hola <strong>${student.name}</strong>,</p>
-              <p>Se ha registrado tu <strong>${typeLabel.toLowerCase()}</strong> correctamente.</p>
-              <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <p style="margin: 0; color: #64748b; font-size: 14px;">Detalles del registro:</p>
-                <p style="margin: 5px 0 0 0; font-size: 18px; font-weight: bold;">${dateStr}</p>
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 30px; border: 1px solid #f1f5f9; border-radius: 20px; background-color: #ffffff; color: #1e293b;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 40px;">🚀</span>
               </div>
-              <p style="color: #94a3b8; font-size: 12px;">Este es un mensaje automático de Play Code Control de Asistencias.</p>
+              <h2 style="text-align: center; color: #4f46e5; margin-bottom: 10px; font-size: 24px;">¡Hola, ${student.name}!</h2>
+              <p style="text-align: center; font-size: 16px; line-height: 1.6; color: #475569;">
+                Te informamos que se ha registrado tu <strong>${typeLabel.toLowerCase()}</strong> en el aula.
+              </p>
+              
+              <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #4f46e5; text-align: center;">
+                <p style="margin: 0; color: #64748b; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Fecha y Hora</p>
+                <p style="margin: 8px 0 0 0; font-size: 18px; font-weight: bold; color: #1e293b;">${dateStr}</p>
+              </div>
+              
+              <p style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                Este es un mensaje automático de <strong>Play Code Control</strong>.<br>
+                No es necesario responder a este correo.
+              </p>
             </div>
           `
         })
