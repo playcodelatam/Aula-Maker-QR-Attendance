@@ -33,7 +33,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       const typeLabel = record.type === 'entry' ? 'Ingreso' : 'Salida';
       const dateStr = new Date(record.timestamp).toLocaleString('es-ES', { 
         dateStyle: 'long',
-        timeStyle: 'short'
+        timeStyle: 'short',
+        timeZone: 'America/Argentina/Buenos_Aires'
       });
 
       await fetch('https://api.resend.com/emails', {
