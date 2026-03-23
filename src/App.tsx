@@ -28,7 +28,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   
   const [isAddingStudent, setIsAddingStudent] = useState(false);
-  const [newStudent, setNewStudent] = useState({ name: '', studentId: '', email: '', group: '' });
+  const [newStudent, setNewStudent] = useState({ name: '', studentId: '', email: '', parentName: '', group: '' });
   const [searchTerm, setSearchTerm] = useState('');
 
   // Cooldown for scanning to prevent loops
@@ -112,7 +112,7 @@ export default function App() {
 
       if (res.ok) {
         setStudents([...students, student]);
-        setNewStudent({ name: '', studentId: '', email: '', group: '' });
+        setNewStudent({ name: '', studentId: '', email: '', parentName: '', group: '' });
         setIsAddingStudent(false);
         addNotification(`Alumno ${student.name} registrado con éxito`, 'success');
       } else {
@@ -355,7 +355,10 @@ export default function App() {
                       </div>
                       <div>
                         <h4 className="font-semibold text-slate-900">{student.name}</h4>
-                        <p className="text-xs text-slate-500">{student.group || 'Sin grupo'}</p>
+                        <p className="text-xs text-slate-500">
+                          {student.group || 'Sin grupo'}
+                          {student.parentName && ` • Familiar: ${student.parentName}`}
+                        </p>
                       </div>
                     </div>
                     <div className="flex justify-center p-2 bg-slate-50 rounded-xl mb-4">
@@ -547,13 +550,23 @@ export default function App() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico (Familiar)</label>
                   <input 
                     type="email" 
                     className="w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                    placeholder="Ej. alumno@correo.com"
+                    placeholder="Ej. familiar@correo.com"
                     value={newStudent.email}
                     onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Familiar Responsable</label>
+                  <input 
+                    type="text" 
+                    className="w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="Nombre del padre/madre/tutor"
+                    value={newStudent.parentName}
+                    onChange={(e) => setNewStudent({...newStudent, parentName: e.target.value})}
                   />
                 </div>
                 <div>

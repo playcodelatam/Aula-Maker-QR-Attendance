@@ -24,9 +24,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     .run();
     
     // 2. Fetch student info for email
-    const student = await DB.prepare("SELECT name, email FROM students WHERE studentId = ?")
+    const student = await DB.prepare("SELECT name, email, parentName FROM students WHERE studentId = ?")
       .bind(record.studentId)
-      .first() as { name: string, email: string } | null;
+      .first() as { name: string, email: string, parentName: string } | null;
 
     // 3. Send email if student has email registered
     if (student && student.email && RESEND_API_KEY) {
@@ -51,9 +51,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               <div style="text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 40px;">🚀</span>
               </div>
-              <h2 style="text-align: center; color: #4f46e5; margin-bottom: 10px; font-size: 24px;">¡Hola, ${student.name}!</h2>
+              <h2 style="text-align: center; color: #4f46e5; margin-bottom: 10px; font-size: 24px;">¡Hola, ${student.parentName || student.name}!</h2>
               <p style="text-align: center; font-size: 16px; line-height: 1.6; color: #475569;">
-                Te informamos que se ha registrado tu <strong>${typeLabel.toLowerCase()}</strong> en el aula.
+                Te informamos que se ha registrado el <strong>${typeLabel.toLowerCase()}</strong> de <strong>${student.name}</strong> en el aula.
               </p>
               
               <div style="background-color: #f8fafc; padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #4f46e5; text-align: center;">

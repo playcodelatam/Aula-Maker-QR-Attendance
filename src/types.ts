@@ -3,6 +3,7 @@ export interface Student {
   name: string;
   studentId: string; // Unique identifier for QR
   email?: string;
+  parentName?: string;
   group?: string;
   createdAt: number;
 }

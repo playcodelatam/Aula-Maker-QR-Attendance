@@ -4,6 +4,14 @@ interface Env {
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { DB } = context.env;
+  
+  // Migration: Add parentName column if it doesn't exist
+  try {
+    await DB.prepare("ALTER TABLE students ADD COLUMN parentName TEXT").run();
+  } catch (e) {
+    // Column likely already exists
+  }
+
   const { results } = await DB.prepare("SELECT * FROM students ORDER BY name ASC").all();
   return new Response(JSON.stringify(results), {
     headers: { "Content-Type": "application/json" },
@@ -16,9 +24,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   
   try {
     await DB.prepare(
-      "INSERT INTO students (id, name, email, studentId, group_name, createdAt) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO students (id, name, email, parentName, studentId, group_name, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
-    .bind(student.id, student.name, student.email || null, student.studentId, student.group || null, student.createdAt)
+    .bind(student.id, student.name, student.email || null, student.parentName || null, student.studentId, student.group || null, student.createdAt)
     .run();
     
     return new Response(JSON.stringify({ success: true }), { status: 201 });
