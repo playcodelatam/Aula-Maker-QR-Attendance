@@ -62,7 +62,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               </div>
               
               <p style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
-                Este es un mensaje automático de <strong>Play Code Control</strong>.<br>
+                Este es un mensaje automático de la <strong>secretaria de Play Code</strong>.<br>
                 No es necesario responder a este correo.
               </p>
             </div>
